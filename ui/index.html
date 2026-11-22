@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#101113" />
+  <title>Hearth — Your personal archive</title>
+  <style>
+    html, body {
+      background-color: #101113;
+      margin: 0;
+      padding: 0;
+      color: #f1eee9;
+    }
+    .app-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 45%, #181a1e 0%, #101113 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .app-splash.splash-fade-out {
+      opacity: 0;
+      transform: scale(1.02);
+      pointer-events: none;
+    }
+    .splash-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .splash-mark-wrap {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+    }
+    .splash-ember-glow {
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(203, 184, 160, 0.28) 0%, transparent 70%);
+      filter: blur(10px);
+      animation: splash-pulse 2.2s ease-in-out infinite alternate;
+    }
+    .splash-mark {
+      width: 48px;
+      height: 48px;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.5));
+    }
+    .splash-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: -0.5px;
+      color: #f3efe8;
+      margin-top: 4px;
+    }
+    .splash-sub {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      letter-spacing: 1.8px;
+      font-weight: 700;
+      color: #928e88;
+    }
+    .splash-bar {
+      width: 130px;
+      height: 3px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      overflow: hidden;
+      margin-top: 14px;
+      position: relative;
+    }
+    .splash-progress {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, transparent, #cbb8a0, transparent);
+      animation: splash-progress-slide 1.4s ease-in-out infinite;
+    }
+    @keyframes splash-pulse {
+      0% { transform: scale(0.88); opacity: 0.5; }
+      100% { transform: scale(1.18); opacity: 0.95; }
+    }
+    @keyframes splash-progress-slide {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+  </style>
+  <link rel="stylesheet" href="styles.css?v=0.4.3" />
+  <link rel="stylesheet" href="refinements.css?v=0.4.3" />
+</head>
+<body style="background:#101113;margin:0;">
+  <div id="app-splash" class="app-splash">
+    <div class="splash-content">
+      <div class="splash-mark-wrap">
+        <div class="splash-ember-glow"></div>
+        <img class="splash-mark" src="hearth-mark.svg" alt="Hearth"/>
+      </div>
+      <div class="splash-title">Hearth</div>
+      <div class="splash-sub">YOUR PERSONAL ARCHIVE</div>
+      <div class="splash-bar"><div class="splash-progress"></div></div>
+    </div>
+  </div>
+  <div class="app" id="app">
+    <header class="titlebar pywebview-drag-region">
+      <div class="titlebar-brand pywebview-drag-region">
+        <!-- Hearth archive mark, used in the app chrome and Windows icon. -->
+        <img class="app-brand-icon" src="hearth-mark.svg" alt=""/>
+        <span class="brand-title">Hearth</span><span class="brand-version">0.4.3</span>
+      </div>
+      <div class="titlebar-center pywebview-drag-region">YOUR PERSONAL ARCHIVE</div>
+      <div class="window-controls">
+        <button class="window-btn" aria-label="Minimize" onclick="window.pywebview.api.minimize()"><svg viewBox="0 0 16 16"><path d="M3 8h10"/></svg></button>
+        <button class="window-btn" aria-label="Maximize" onclick="window.pywebview.api.toggle_maximize()"><svg viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx=".7"/></svg></button>
+        <button class="window-btn close" id="window-close" aria-label="Close"><svg viewBox="0 0 16 16"><path d="m4 4 8 8M12 4l-8 8"/></svg></button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <div class="brand-lockup">
+            <img class="app-brand-icon large" src="hearth-mark.svg" alt=""/>
+            <div><div class="brand-title">Hearth</div><div class="brand-caption" data-i18n="personalArchive">YOUR PERSONAL ARCHIVE</div></div>
+          </div>
+
+          <div class="nav-group">
+            <div class="group-label" data-i18n="library">LIBRARY</div>
+            <button class="nav-item active" data-category="Everything"><span class="icon" data-icon="grid"></span><span data-i18n="everything">Everything</span><span class="nav-count" id="everything-count">0</span></button>
+            <button class="nav-item" data-category="On This Day"><span class="icon" data-icon="spark"></span><span data-i18n="onThisDay">On This Day</span><span class="nav-count" id="on-this-day-count"></span></button>
+            <button class="nav-item" data-category="Favorites"><span class="icon" data-icon="heart"></span><span data-i18n="favorites">Favorites</span></button>
+            <button class="nav-item" data-category="Duplicates"><span class="icon" data-icon="copy"></span><span data-i18n="duplicates">Duplicates</span></button>
+            <button class="nav-item" data-category="Recently modified"><span class="icon" data-icon="clock"></span><span data-i18n="recent">Recently modified</span></button>
+            <button class="nav-item" data-category="Documents"><span class="icon" data-icon="file"></span><span data-i18n="documents">Documents</span></button>
+            <button class="nav-item" data-category="Images"><span class="icon" data-icon="image"></span><span data-i18n="images">Images</span></button>
+            <button class="nav-item" data-category="Spreadsheets"><span class="icon" data-icon="sheet"></span><span data-i18n="spreadsheets">Spreadsheets</span></button>
+            <button class="nav-item" data-category="Audio"><span class="icon" data-icon="audio"></span><span data-i18n="audio">Audio</span></button>
+            <button class="nav-item" data-category="Video"><span class="icon" data-icon="video"></span><span data-i18n="video">Video</span></button>
+          </div>
+
+          <div class="nav-group collections-group">
+            <div class="group-heading"><div class="group-label" data-i18n="collections">COLLECTIONS</div><button class="icon-btn tiny" id="new-smart-collection" title="New smart collection"><span data-icon="filter"></span></button><button class="icon-btn tiny" id="new-collection" title="New collection"><span data-icon="plus"></span></button></div>
+            <div id="collections-list" class="collections-list"><div class="nav-empty" data-i18n="noCollections">A little space for what matters.</div></div>
+          </div>
+
+          <div class="nav-group saved-search-group">
+            <div class="group-heading"><div class="group-label" data-i18n="savedSearches">SAVED SEARCHES</div><button class="icon-btn tiny" id="save-search" title="Save current search"><span data-icon="plus"></span></button></div>
+            <div id="saved-searches-list" class="saved-searches-list"><div class="nav-empty">No saved searches yet.</div></div>
+          </div>
+
+          <div class="nav-group folders-group">
+            <div class="group-heading"><div class="group-label" data-i18n="folders">FOLDERS</div><button class="icon-btn tiny" id="add-folder-mini" title="Add folder"><span data-icon="plus"></span></button></div>
+            <div id="roots-list" class="roots-list"><div class="nav-empty" data-i18n="noFolders">No folders in your library yet.</div></div>
+            <button class="add-folder" id="add-files"><span data-icon="file"></span><span data-i18n="addFiles">Add files</span></button>
+            <button class="add-folder" id="add-folder"><span data-icon="folder-plus"></span><span data-i18n="addFolder">Add a folder</span></button>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="privacy-note"><span class="privacy-icon" data-icon="lock"></span><div><strong data-i18n="privateByDesign">Private by design</strong><small data-i18n="storedLocally">Your files stay on this device.</small></div><span class="privacy-dot"></span></div>
+          <button class="settings-link" id="open-settings"><span data-icon="settings"></span><span data-i18n="settings">Settings</span><span class="key-hint">CTRL ,</span></button>
+          <div class="sidebar-foot">HEARTH <span>·</span> VERSION 0.4.3</div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-row">
+          <div class="welcome-copy">
+            <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="aCalmerWay">A CALMER WAY TO FIND YOUR FILES</span></div>
+            <h1><span data-i18n="everythingInIts">Everything, in its</span> <em data-i18n="rightPlace">right place.</em></h1>
+            <p data-i18n="welcomeLine">A thoughtful home for the files that make up your life.</p>
+          </div>
+          <div class="welcome-actions"><button class="round-action" id="undo-button" title="Undo last file operation · Ctrl+Z"><span data-icon="undo"></span></button><button class="round-action" id="theme-toggle" title="Toggle appearance"><span data-icon="sun"></span></button><button class="round-action" id="backup-button" title="Create a backup"><span data-icon="archive"></span></button></div>
+        </section>
+
+        <section class="search-section">
+          <div class="search-box" id="search-box"><span class="search-symbol" data-icon="search"></span><input id="search" type="text" autocomplete="off" spellcheck="false" aria-describedby="query-syntax" placeholder="Search files, notes, receipts…" /><button id="clear-search" class="clear-search" aria-label="Clear search" hidden>×</button><kbd>CTRL <span>K</span></kbd></div>
+          <div class="search-below"><div class="search-hint"><span class="sparkle">✳</span><span data-i18n="trySearching">Try searching</span><button class="suggestion" data-query="receipts">receipts</button><button class="suggestion" data-query="on:today">on:today</button><button class="suggestion" data-query="type:pdf">type:pdf</button></div><div class="local-badge"><span></span><span data-i18n="searchStaysLocal">Search stays on your device</span></div><button class="filter-button" id="filters-button"><span data-icon="filter"></span><span data-i18n="filters">Filters</span></button></div>
+          <div class="query-syntax" id="query-syntax">Fields: type:pdf tag:tax after:2026-01-01 before:2026-12-31 size&gt;3MB folder:Receipts</div>
+        </section>
+
+        <section class="library-section">
+          <div class="section-heading">
+            <div class="section-title-wrap"><span class="section-kicker" data-i18n="yourLibrary">YOUR LIBRARY</span><h2 id="view-title" data-i18n="allYourFiles">All your files</h2><span id="result-count" class="result-count">0 items</span></div>
+            <div class="view-controls"><div class="sort-control"><span data-icon="sort"></span><select id="sort-select" aria-label="Sort files"><option value="recent">Recently modified</option><option value="name">Name</option></select></div><div class="view-switch"><button class="view-btn active" data-view="grid" aria-label="Grid view"><span data-icon="grid"></span></button><button class="view-btn" data-view="list" aria-label="List view"><span data-icon="list"></span></button></div></div>
+          </div>
+          <div class="library-workspace">
+            <div class="files-panel">
+              <div class="file-toolbar"><div class="file-toolbar-left"><span class="selection-dot"></span><span id="selection-label" data-i18n="selectAnItem">Select an item to preview</span></div><div class="file-toolbar-actions"><div class="bulk-actions" id="bulk-actions" hidden><button class="toolbar-btn" data-bulk="compare" id="bulk-compare" title="Compare 2 files" hidden><span data-icon="copy"></span></button><button class="toolbar-btn" data-bulk="tag" title="Edit tags"><span data-icon="tag"></span></button><button class="toolbar-btn" data-bulk="favorite" title="Toggle favorites"><span data-icon="heart"></span></button><button class="toolbar-btn" data-bulk="collection" title="Add to collection"><span data-icon="spark"></span></button><button class="toolbar-btn" data-bulk="copy" title="Copy selected"><span data-icon="copy"></span></button><button class="toolbar-btn" data-bulk="move" title="Move selected"><span data-icon="move"></span></button><button class="toolbar-btn" data-bulk="rename" title="Rename selected"><span data-icon="rename"></span></button><button class="toolbar-btn" data-bulk="delete" title="Delete selected · undo available"><span data-icon="trash"></span></button></div><button class="toolbar-btn" id="duplicate-review" title="Review duplicates" hidden><span data-icon="check"></span></button><button class="toolbar-btn" id="refresh-files" title="Refresh"><span data-icon="refresh"></span></button><button class="toolbar-btn" id="file-menu-trigger" title="More actions" disabled><span data-icon="more"></span></button></div></div>
+              <div id="files-container" class="files-container grid-view"></div>
+              <div class="pagination-bar" id="pagination-bar" aria-live="polite" hidden><span id="pagination-label"></span><div><button id="page-prev" aria-label="Previous page">‹</button><button id="page-next" aria-label="Next page">›</button></div></div>
+              <div class="drop-hint" id="drop-hint"><span data-icon="folder-open"></span><span data-i18n="dropHint">Folders you add appear here. Your originals are never moved.</span></div>
+            </div>
+            <aside class="preview-panel" id="preview-panel"><div class="preview-empty"><div class="preview-art"><div class="art-glow"></div><div class="art-paper"><span></span><i></i><i></i><i></i><b></b></div><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div></div><div class="preview-empty-title" data-i18n="aCloserLook">A closer look</div><div class="preview-empty-copy" data-i18n="selectPreview">Choose a file and its details will live here.</div><div class="preview-empty-tip"><span data-icon="spark"></span><span data-i18n="previewTip">Your original stays right where it is.</span></div></div></aside>
+          </div>
+        </section>
+
+        <footer class="status-bar"><div class="status-left"><span id="status-indicator" class="status-indicator"></span><span id="status-message" data-i18n="readyOnDevice">Ready · Everything stays on this device</span></div><div class="status-right"><span id="indexed-count">0 files indexed</span><span class="status-separator"></span><span id="sync-state" data-i18n="upToDate">Up to date</span></div></footer>
+      </main>
+    </div>
+  </div>
+
+  <div class="drop-overlay" id="external-drop-overlay" aria-hidden="true"><div class="drop-overlay-card"><span class="drop-overlay-icon" data-icon="folder-open"></span><strong data-i18n="dropOverlayTitle">Drop files and folders to add them</strong><span data-i18n="dropOverlayBody">Your originals stay right where they are.</span></div></div>
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <div class="modal-backdrop" id="modal-backdrop" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+  <div class="context-menu" id="context-menu" hidden></div>
+  <input type="file" id="hidden-input" hidden />
+  <script src="app.js?v=0.4.3"></script>
+</body>
+</html>

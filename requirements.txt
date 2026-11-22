@@ -1,0 +1,7 @@
+# Runtime dependencies tested with Windows / Python 3.12
+# Keep exact pins for reproducible source installs and package builds.
+pywebview==6.2.1
+pypdfium2==5.15.2
+Pillow==12.3.0
+watchdog==7.1.0
+pypdf==7.1.1
