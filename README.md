@@ -31,6 +31,8 @@ Whether you manage legal PDFs, source code repositories, research notes, financi
 
 > 🔒 **Private by Design:** Files never leave your machine. Search indexing, content extraction, thumbnail generation, PDF transformations, and image manipulations run 100% locally on your CPU.
 
+<img width="1366" height="768" alt="Ekran Görüntüsü (2)" src="https://github.com/user-attachments/assets/6889b27d-172c-44ea-8e13-dfe685744ad1" />
+
 ---
 
 ## ✨ Key Features
