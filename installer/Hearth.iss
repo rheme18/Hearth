@@ -56,7 +56,7 @@ Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\Hearth\command"
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\Hearth\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\Hearth\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "portable.dat,data,data\*"
 
 [Icons]
 Name: "{group}\Hearth"; Filename: "{app}\{#AppExeName}"

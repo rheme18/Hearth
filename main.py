@@ -2196,6 +2196,24 @@ class HearthAPI:
             self._library.db.commit()
         return self.get_state()
 
+    def remove_missing_files(self):
+        """Remove all library entries whose files no longer exist on disk."""
+        with self._library.lock:
+            all_paths = [r[0] for r in self._library.db.execute("SELECT path FROM files")]
+        ghosts = [p for p in all_paths if not os.path.exists(p)]
+        if not ghosts:
+            return {"ok": True, "removed": 0}
+        with self._library.lock:
+            for table in ("files", "collection_items", "favorites",
+                          "file_tags", "file_index_versions", "file_hashes",
+                          "file_notes"):
+                self._library.db.executemany(
+                    f"DELETE FROM {table} WHERE path=?",
+                    [(p,) for p in ghosts]
+                )
+            self._library.db.commit()
+        return {"ok": True, "removed": len(ghosts)}
+
     def get_scan_status(self):
         return {**self._library.scan_status, "count_total": self.count_files(),
                 "drop_event": self._drop_event}
@@ -2283,6 +2301,9 @@ class HearthAPI:
             return {"ok": False, "error": str(exc)}
 
     def refresh_folders(self):
+        # 1. Clean up any ghost records from deleted loose files or deleted roots
+        self.remove_missing_files()
+        
         roots = [r["path"] for r in self._library.roots() if os.path.isdir(r["path"])]
         for root in roots:
             self._start_watcher(root)
@@ -2554,9 +2575,25 @@ class HearthAPI:
             if undo_items: self._record_undo(action, undo_items)
             return {"ok": successes > 0, "completed": successes, "errors": errors[:5]}
         if action == "delete":
+            # Separate paths into those that still exist on disk and those that
+            # have already been deleted externally.  Ghost entries (missing on
+            # disk but present in the index) are removed from the library
+            # immediately so the user is never stuck with an un-deletable card.
             existing = [path for path in paths if os.path.isfile(path)]
+            ghosts   = [path for path in paths if not os.path.isfile(path)]
+            if ghosts:
+                with self._library.lock:
+                    for table in ("files", "collection_items", "favorites",
+                                  "file_tags", "file_index_versions", "file_hashes",
+                                  "file_notes"):
+                        self._library.db.executemany(
+                            f"DELETE FROM {table} WHERE path=?",
+                            [(p,) for p in ghosts]
+                        )
+                    self._library.db.commit()
             if not existing:
-                return {"ok": False, "error": "The selected files are no longer available."}
+                # All selected files were already gone from disk — cleaned up above.
+                return {"ok": True, "completed": len(ghosts), "ghosts_removed": len(ghosts)}
             undo_items = []
             undo_id = None
             try:
@@ -2783,11 +2820,7 @@ class HearthAPI:
         return {"ok": True, "count": len(exported), "destination": str(desktop)}
 
     def start_drag(self, paths):
-        """Initiate native Windows OLE drag-and-drop to Explorer, Desktop, or other apps.
-
-        Uses a pure-ctypes COM SHDoDragDrop on a dedicated STA thread so that
-        WebView2's internal mouse capture cannot block the operation.
-        """
+        """Initiate native Windows OLE drag-and-drop to Explorer, Desktop, or other apps."""
         if not paths:
             return {"ok": False, "error": "No files specified"}
         if isinstance(paths, str):
@@ -2797,6 +2830,36 @@ class HearthAPI:
             return {"ok": False, "error": "Files do not exist"}
 
         if os.name == "nt":
+            try:
+                import clr
+                if hasattr(clr, "AddReference"):
+                    clr.AddReference('System.Windows.Forms')
+                    from System.Windows.Forms import DataObject, DragDropEffects, MethodInvoker
+                    from System.Collections.Specialized import StringCollection
+
+                    sc = StringCollection()
+                    for p in valid_paths:
+                        sc.Add(os.path.abspath(p))
+                    data = DataObject()
+                    data.SetFileDropList(sc)
+
+                    native = getattr(getattr(self, "_window", None), "native", None)
+                    if native:
+                        def _do_drag():
+                            try:
+                                ctypes.windll.user32.ReleaseCapture()
+                                native.DoDragDrop(
+                                    data,
+                                    DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link
+                                )
+                            except Exception:
+                                pass
+                        native.BeginInvoke(MethodInvoker(_do_drag))
+                        return {"ok": True, "count": len(valid_paths), "paths": valid_paths}
+            except Exception as exc:
+                import logging
+                logging.getLogger("hearth").error("start_drag direct error: %s", exc)
+
             try:
                 _start_shell_drag(valid_paths)
                 return {"ok": True, "count": len(valid_paths), "paths": valid_paths}
@@ -3104,6 +3167,90 @@ class HearthAPI:
                 self._tray_manager = TrayManager(self)
             if getattr(self, "_start_minimized", False):
                 self.hide_window()
+
+            # Enable native WinForms and WebView2 Drag & Drop for all files and folders
+            try:
+                import clr
+                clr.AddReference("System.Windows.Forms")
+                import System.Windows.Forms as WinForms
+
+                native_form = self._window.native
+
+                def _setup_drag_drop(ctrl):
+                    try:
+                        ctrl.AllowDrop = True
+
+                        effect_none = getattr(WinForms.DragDropEffects, "None", 0)
+
+                        def _on_drag_enter(sender, e):
+                            try:
+                                if e.Data.GetDataPresent(WinForms.DataFormats.FileDrop):
+                                    e.Effect = WinForms.DragDropEffects.Copy
+                                else:
+                                    e.Effect = effect_none
+                            except Exception:
+                                pass
+
+                        def _on_drag_over(sender, e):
+                            try:
+                                if e.Data.GetDataPresent(WinForms.DataFormats.FileDrop):
+                                    e.Effect = WinForms.DragDropEffects.Copy
+                                else:
+                                    e.Effect = effect_none
+                            except Exception:
+                                pass
+
+                        def _on_drag_drop(sender, e):
+                            try:
+                                if e.Data.GetDataPresent(WinForms.DataFormats.FileDrop):
+                                    raw = e.Data.GetData(WinForms.DataFormats.FileDrop)
+                                    if raw:
+                                        paths = [os.path.normpath(str(p)) for p in raw if p]
+                                        if paths:
+                                            self.queue_add_paths(paths)
+                            except Exception as exc:
+                                logging.getLogger("hearth").error("Native drag drop error: %s", exc)
+
+                        ctrl.DragEnter += WinForms.DragEventHandler(_on_drag_enter)
+                        ctrl.DragOver += WinForms.DragEventHandler(_on_drag_over)
+                        ctrl.DragDrop += WinForms.DragEventHandler(_on_drag_drop)
+                    except Exception as exc:
+                        logging.getLogger("hearth").debug("Could not hook drag drop on %s: %s", ctrl, exc)
+
+                    # Hook WebMessageReceived on WebView2 controls for direct drop messages
+                    if "WebView2" in ctrl.GetType().Name:
+                        try:
+                            def _on_web_msg(sender, args):
+                                try:
+                                    msg = args.get_WebMessageAsJson()
+                                    if msg in ('"HearthNativeDrop"', '"FilesDropped"'):
+                                        objs = args.get_AdditionalObjects()
+                                        if objs:
+                                            paths = []
+                                            for item in list(objs):
+                                                p = getattr(item, "Path", None)
+                                                if p:
+                                                    paths.append(os.path.normpath(str(p)))
+                                            if paths:
+                                                self.queue_add_paths(paths)
+                                except Exception as exc:
+                                    logging.getLogger("hearth").error("WebMessage drop error: %s", exc)
+
+                            ctrl.WebMessageReceived += _on_web_msg
+                        except Exception as exc:
+                            logging.getLogger("hearth").debug("Could not hook WebMessageReceived on %s: %s", ctrl, exc)
+
+                _setup_drag_drop(native_form)
+                for c in list(native_form.Controls):
+                    _setup_drag_drop(c)
+
+                def _on_ctrl_added(sender, e):
+                    if getattr(e, "Control", None):
+                        _setup_drag_drop(e.Control)
+
+                native_form.ControlAdded += WinForms.ControlEventHandler(_on_ctrl_added)
+            except Exception as exc:
+                logging.getLogger("hearth").error("Failed to setup native drag drop: %s", exc)
         except (AttributeError, OSError, TypeError):
             return
 
@@ -3509,6 +3656,18 @@ def main():
 def process_native_drop(api, event):
     """Normalize PyWebView's DOM and WebView2 file-drop payloads."""
     paths = []
+    # Check if pywebview's internal _dnd_state collected any paths from WebView2
+    try:
+        from webview.dom import _dnd_state
+        if _dnd_state.get("paths"):
+            for item in list(_dnd_state["paths"]):
+                p = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else str(item)
+                if p and p not in paths:
+                    paths.append(os.path.normpath(p))
+            _dnd_state["paths"].clear()
+    except Exception:
+        pass
+
     for transfer_name in ("domTransfer", "dataTransfer"):
         transfer = event.get(transfer_name) or {}
         for item in transfer.get("files", []):
@@ -3524,17 +3683,18 @@ def process_native_drop(api, event):
                     paths.append(path)
     if paths:
         return api.queue_add_paths(paths)
-    api.register_drop_event({"ok": False, "folders": 0, "files": 0,
-                             "error": "Hearth could not read the dropped file paths."})
-    return {"ok": False, "error": "Hearth could not read the dropped file paths."}
+    return {"ok": True, "handled": False}
 
 
 def bind_native_drop(window, api):
-    from webview.dom import DOMEventHandler
+    try:
+        from webview.dom import DOMEventHandler
 
-    window.dom.document.events.drop += DOMEventHandler(
-        lambda event: process_native_drop(api, event),
-        prevent_default=True, stop_propagation=False)
+        window.dom.document.events.drop += DOMEventHandler(
+            lambda event: process_native_drop(api, event),
+            prevent_default=True, stop_propagation=False)
+    except Exception as exc:
+        logging.getLogger("hearth").debug("bind_native_drop error: %s", exc)
 
 
 if __name__ == "__main__":
