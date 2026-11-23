@@ -73,6 +73,8 @@ Whether you manage legal PDFs, source code repositories, research notes, financi
 - **Internationalization:** Full bilingual interface supporting both English and Turkish (`tr`) with live runtime switching.
 - **Reversible Deletion:** Deleted library files are safely moved to the Windows Recycle Bin with instant undo (`Ctrl+Z`).
 
+<img width="1366" height="768" alt="Ekran Görüntüsü (4)" src="https://github.com/user-attachments/assets/70e86d07-a839-4079-88f0-de8144014f86" />
+
 ---
 
 ## 🚀 Installation
@@ -143,6 +145,8 @@ Hearth/
 ├── make_portable.py      # Automated portable package builder
 └── requirements.txt      # Pinned production dependencies
 ```
+
+<img width="1366" height="768" alt="Ekran Görüntüsü (5)" src="https://github.com/user-attachments/assets/1ac60f4a-8fb2-462f-9524-b679d4af2510" />
 
 ### Core Technologies
 - **Runtime:** Python 3.12 (64-bit)
