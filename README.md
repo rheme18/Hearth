@@ -5,7 +5,6 @@
 # Hearth
 
 ---
-
 **English** • [Türkçe](README.tr.md) *(Bilingual UI & Search Engine)*
 
 <br/>
