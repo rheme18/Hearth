@@ -28,10 +28,6 @@ Zero telemetry. No cloud dependency. 100% offline.
 
 <br/>
 
-[![Download Hearth v0.4.3](https://img.shields.io/badge/⬇_DOWNLOAD_LATEST_RELEASE_(v0.4.3)-bfa588?style=for-the-badge&logo=windows11&logoColor=101113)](https://github.com/rheme18/Hearth/releases/latest)
-
-<br/>
-
 [Overview](#-overview) • [Key Features](#-key-features) • [Installation](#-installation) • [Search Syntax](#-search-syntax) • [Shortcuts](#-keyboard-shortcuts)
 <br/>
 [Architecture](#-architecture--technology-stack) • [Build from Source](#-building-from-source) • [Contributing](#-contributing) • [License](#-license)
