@@ -4,7 +4,6 @@
 
 # Hearth
 
----
 **English** • [Türkçe](README.tr.md) *(Bilingual UI & Search Engine)*
 
 <br/>
@@ -16,14 +15,14 @@ Zero telemetry. No cloud dependency. 100% offline.
 
 <br/>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-cbb8a0?style=flat-square&logo=opensourceinitiative&logoColor=101113)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=flat-square&logo=windows11&logoColor=white)](https://www.microsoft.com/windows)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Release](https://img.shields.io/badge/Release-v0.4.3-bfa588?style=flat-square&logo=github&logoColor=white)](https://github.com/rheme18/Hearth/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-cbb8a0?style=for-the-badge&logo=opensourceinitiative&logoColor=101113)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white)](https://www.microsoft.com/windows)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Release](https://img.shields.io/badge/Release-v0.4.3-bfa588?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rheme18/Hearth/releases)
 <br/>
-[![GitHub Stars](https://img.shields.io/github/stars/rheme18/Hearth?style=flat-square&logo=github&color=4EAA79)](https://github.com/rheme18/Hearth/stargazers)
-[![Tests](https://img.shields.io/badge/Tests-19%20Passing-4EAA79?style=flat-square&logo=pytest&logoColor=white)](tests/)
-[![UI Engine](https://img.shields.io/badge/UI-WebView2%20%2B%20SQLite%20WAL-101113?style=flat-square)](https://github.com/rheme18/Hearth)
+[![GitHub Stars](https://img.shields.io/github/stars/rheme18/Hearth?style=for-the-badge&logo=github&color=4EAA79)](https://github.com/rheme18/Hearth/stargazers)
+[![Tests](https://img.shields.io/badge/Tests-19%20Passing-4EAA79?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
+[![UI Engine](https://img.shields.io/badge/UI-WebView2%20%2B%20SQLite%20WAL-101113?style=for-the-badge)](https://github.com/rheme18/Hearth)
 
 <br/>
 
