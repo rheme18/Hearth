@@ -15,14 +15,14 @@ Zero telemetry. No cloud dependency. 100% offline.
 
 <br/>
 
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-cbb8a0?style=for-the-badge&logo=opensourceinitiative&logoColor=101113" alt="License: MIT" height="34" /></a>
-<a href="https://www.microsoft.com/windows"><img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white" alt="Platform" height="34" /></a>
-<a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" height="34" /></a>
-<a href="https://github.com/rheme18/Hearth/releases"><img src="https://img.shields.io/badge/Release-v0.4.3-bfa588?style=for-the-badge&logo=github&logoColor=white" alt="Release" height="34" /></a>
+[![License: MIT](https://img.shields.io/badge/License-MIT-cbb8a0?style=flat&logo=opensourceinitiative&logoColor=101113)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=flat&logo=windows11&logoColor=white)](https://www.microsoft.com/windows)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Release](https://img.shields.io/badge/Release-v0.4.3-bfa588?style=flat&logo=github&logoColor=white)](https://github.com/rheme18/Hearth/releases)
 <br/>
-<a href="https://github.com/rheme18/Hearth/stargazers"><img src="https://img.shields.io/github/stars/rheme18/Hearth?style=for-the-badge&logo=github&color=4EAA79" alt="GitHub Stars" height="34" /></a>
-<a href="tests/"><img src="https://img.shields.io/badge/Tests-19%20Passing-4EAA79?style=for-the-badge&logo=pytest&logoColor=white" alt="Tests" height="34" /></a>
-<a href="https://github.com/rheme18/Hearth"><img src="https://img.shields.io/badge/UI-WebView2%20%2B%20SQLite%20WAL-101113?style=for-the-badge" alt="UI Engine" height="34" /></a>
+[![GitHub Stars](https://img.shields.io/github/stars/rheme18/Hearth?style=flat&logo=github&color=4EAA79)](https://github.com/rheme18/Hearth/stargazers)
+[![Tests](https://img.shields.io/badge/Tests-19%20Passing-4EAA79?style=flat&logo=pytest&logoColor=white)](tests/)
+[![UI Engine](https://img.shields.io/badge/UI-WebView2%20%2B%20SQLite%20WAL-101113?style=flat)](https://github.com/rheme18/Hearth)
 
 <br/>
 
